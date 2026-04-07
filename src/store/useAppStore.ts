@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Task } from '../types/index.d';
+import type { Task, Category } from '../types/index.d';
 import { getDatabase } from '../db/database';
 
 export type TabName = 'home' | 'calendar' | 'timetable' | 'settings';
@@ -17,6 +17,10 @@ interface AppState {
   tasks: Task[];
   _setTasks: (tasks: Task[]) => void;
 
+  // 카테고리 목록 (RxDB에서 동기화된 인메모리 미러)
+  categories: Category[];
+  _setCategories: (cats: Category[]) => void;
+
   // DB-connected CRUD (RxDB에 쓰고 구독을 통해 tasks 갱신)
   addTask: (task: Task) => Promise<void>;
   updateTask: (id: string, patch: Partial<Task>) => Promise<void>;
@@ -26,6 +30,10 @@ interface AppState {
   detailTaskId: string | null;
   openDetail: (id: string) => void;
   closeDetail: () => void;
+
+  // 다크모드
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
 const today = (): string => new Date().toISOString().slice(0, 10);
@@ -39,6 +47,9 @@ export const useAppStore = create<AppState>((set) => ({
 
   tasks: [],
   _setTasks: (tasks) => set({ tasks }),
+
+  categories: [],
+  _setCategories: (categories) => set({ categories }),
 
   addTask: async (task) => {
     const db = await getDatabase();
@@ -62,7 +73,23 @@ export const useAppStore = create<AppState>((set) => ({
   detailTaskId: null,
   openDetail: (id) => set({ detailTaskId: id }),
   closeDetail: () => set({ detailTaskId: null }),
+
+  isDarkMode: localStorage.getItem('darkMode') === 'true',
+  toggleDarkMode: () =>
+    set((state) => {
+      const next = !state.isDarkMode;
+      localStorage.setItem('darkMode', String(next));
+      document.documentElement.classList.toggle('dark', next);
+      return { isDarkMode: next };
+    }),
 }));
+
+// ── 앱 시작 시 저장된 다크모드 복원 ──────────────────────────
+(function applyInitialDarkMode() {
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.documentElement.classList.add('dark');
+  }
+})();
 
 // ── RxDB → Zustand 실시간 동기화 (앱 시작 시 1회 호출) ────────
 let _subscribed = false;
@@ -76,9 +103,18 @@ export const initDbSync = async (): Promise<void> => {
   // 전체 tasks 초기 로드 + 변경 구독
   db.tasks
     .find()
-    .$ // RxDB observable
+    .$
     .subscribe((docs) => {
       const tasks: Task[] = docs.map((d) => d.toJSON() as Task);
       useAppStore.getState()._setTasks(tasks);
+    });
+
+  // 카테고리 초기 로드 + 변경 구독
+  db.categories
+    .find()
+    .$
+    .subscribe((docs) => {
+      const categories: Category[] = docs.map((d) => d.toJSON() as Category);
+      useAppStore.getState()._setCategories(categories);
     });
 };

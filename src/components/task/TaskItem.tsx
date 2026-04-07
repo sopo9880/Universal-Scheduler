@@ -12,7 +12,13 @@ const TaskItem = ({ task }: TaskItemProps) => {
   const updateTask = useAppStore((s) => s.updateTask);
   const addTask = useAppStore((s) => s.addTask);
   const tasks = useAppStore((s) => s.tasks);
+  const categories = useAppStore((s) => s.categories);
   const openDetail = useAppStore((s) => s.openDetail);
+
+  // 카테고리 색상
+  const categoryColor = task.category_id
+    ? (categories.find((c) => c.id === task.category_id)?.color ?? null)
+    : null;
 
   const [wbsLoading, setWbsLoading] = useState(false);
   const [wbsError, setWbsError] = useState<string | null>(null);
@@ -59,10 +65,14 @@ const TaskItem = ({ task }: TaskItemProps) => {
 
   return (
     <div
-      className={`flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 transition-opacity ${
+      className={`flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-opacity overflow-hidden ${
         isDone ? 'opacity-60' : 'opacity-100'
-      } ${isSubTask ? 'ml-6 border-l-2 border-l-indigo-200' : ''}`}
+      } ${isSubTask ? 'ml-6' : ''}`}
     >
+      {/* 카테고리 컬러 바 */}
+      {categoryColor && !isSubTask && (
+        <div className="h-1 w-full shrink-0" style={{ background: categoryColor }} />
+      )}
       <div className="flex items-center gap-3 px-4 py-3">
         {/* 체크박스 */}
         <button

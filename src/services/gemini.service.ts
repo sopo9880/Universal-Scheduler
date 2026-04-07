@@ -3,11 +3,19 @@ import type { NLPResult } from '../types/index.d';
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
+const LS_API_KEY = 'gemini_api_key';
+
 const getApiKey = (): string => {
-  const key = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
-  if (!key) throw new Error('VITE_GEMINI_API_KEY가 설정되지 않았습니다.');
-  return key;
+  // 1순위: localStorage (Settings 페이지에서 저장한 키)
+  const lsKey = localStorage.getItem(LS_API_KEY);
+  if (lsKey && lsKey.trim()) return lsKey.trim();
+  // 2순위: 환경변수
+  const envKey = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+  if (envKey && envKey.trim()) return envKey.trim();
+  throw new Error('Gemini API Key가 설정되지 않았습니다. Settings에서 입력해 주세요.');
 };
+
+export const LS_GEMINI_KEY = LS_API_KEY;
 
 // ── 공통 fetch 헬퍼 ──────────────────────────────────────────
 async function callGemini<T>(

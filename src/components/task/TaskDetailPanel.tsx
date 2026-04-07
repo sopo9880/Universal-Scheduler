@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Trash2, Save } from 'lucide-react';
 import BottomSheet from '../shared/BottomSheet';
 import { useAppStore } from '../../store/useAppStore';
-
 const TaskDetailPanel = () => {
   const tasks = useAppStore((s) => s.tasks);
+  const categories = useAppStore((s) => s.categories);
   const detailTaskId = useAppStore((s) => s.detailTaskId);
   const closeDetail = useAppStore((s) => s.closeDetail);
   const updateTask = useAppStore((s) => s.updateTask);
@@ -93,19 +93,25 @@ const TaskDetailPanel = () => {
             </div>
           </div>
 
-          {/* 카테고리 ID (Phase 7에서 셀렉트로 교체 예정) */}
+          {/* 카테고리 */}
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">
-              카테고리 ID
+              카테고리
             </label>
-            <input
-              type="text"
+            <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              placeholder="카테고리 ID (선택)"
               className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
-            />
+                         focus:outline-none focus:ring-2 focus:ring-indigo-400 transition
+                         bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            >
+              <option value="">카테고리 없음</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* 상태 정보 (읽기 전용) */}
