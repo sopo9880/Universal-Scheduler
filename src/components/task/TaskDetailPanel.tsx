@@ -60,7 +60,8 @@ const TaskDetailPanel = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="할 일 제목"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm
+                         bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
                          focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
             />
           </div>
@@ -75,7 +76,8 @@ const TaskDetailPanel = () => {
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm
+                className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm
+                           bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
                            focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               />
             </div>
@@ -87,7 +89,8 @@ const TaskDetailPanel = () => {
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm
+                className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm
+                           bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100
                            focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               />
             </div>
@@ -115,7 +118,7 @@ const TaskDetailPanel = () => {
           </div>
 
           {/* 상태 정보 (읽기 전용) */}
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
             <span
               className={`px-2 py-0.5 rounded-full font-medium ${
                 task.status === 'DONE'
@@ -146,7 +149,7 @@ const TaskDetailPanel = () => {
             <button
               onClick={handleDelete}
               className="flex items-center justify-center gap-2
-                         px-5 py-2.5 bg-red-50 hover:bg-red-100 active:bg-red-200
+                         px-5 py-2.5 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 active:bg-red-200
                          text-red-500 rounded-xl text-sm font-semibold transition-colors"
             >
               <Trash2 size={15} />

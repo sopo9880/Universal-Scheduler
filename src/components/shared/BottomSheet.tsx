@@ -47,23 +47,23 @@ const BottomSheet = ({ isOpen, onClose, title, children }: BottomSheetProps) => 
             key="sheet"
             role="dialog"
             aria-modal="true"
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl pb-safe max-h-[85vh] flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 rounded-t-2xl shadow-xl pb-safe max-h-[85vh] flex flex-col"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 38 }}
           >
             {/* 핸들 + 헤더 */}
-            <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 shrink-0">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-gray-100 dark:border-gray-700 shrink-0">
               {/* 드래그 핸들 (시각적) */}
               <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-gray-200 rounded-full" />
-              <h2 className="text-base font-semibold text-gray-800 mt-1">
+              <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100 mt-1">
                 {title ?? ''}
               </h2>
               <button
                 onClick={onClose}
                 aria-label="닫기"
-                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors text-gray-400"
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-500"
               >
                 <X size={18} />
               </button>

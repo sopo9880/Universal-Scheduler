@@ -20,7 +20,7 @@ const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 h-16 flex items-center justify-around px-2 safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 h-16 flex items-center justify-around px-2 safe-area-pb">
       {NAV_ITEMS.map(({ tab, path, label, icon }) => {
         const isActive = location.pathname === path;
         return (
@@ -30,8 +30,8 @@ const BottomNav = () => {
             aria-label={label}
             className={`flex flex-col items-center gap-0.5 w-16 py-1 rounded-xl transition-colors
               ${isActive
-                ? 'text-indigo-600'
-                : 'text-gray-400 hover:text-gray-600'
+                ? 'text-indigo-600 dark:text-indigo-400'
+                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
               }`}
           >
             {icon}

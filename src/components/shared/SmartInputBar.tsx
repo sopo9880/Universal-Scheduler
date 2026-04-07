@@ -107,7 +107,7 @@ const SmartInputBar = () => {
         {open && (
           <motion.div
             key="input-bar"
-            className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-100 px-4 pt-4 pb-safe shadow-2xl rounded-t-2xl"
+            className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700 px-4 pt-4 pb-safe shadow-2xl rounded-t-2xl"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -122,7 +122,7 @@ const SmartInputBar = () => {
               <button
                 onClick={close}
                 aria-label="닫기"
-                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors text-gray-400"
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 dark:text-gray-500"
               >
                 <X size={18} />
               </button>
@@ -138,7 +138,7 @@ const SmartInputBar = () => {
                 onKeyDown={handleKeyDown}
                 placeholder="예) 내일 오후 3시에 팀 미팅"
                 disabled={loading}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition disabled:opacity-50"
+                className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition disabled:opacity-50"
               />
               <button
                 onClick={handleSubmit}

@@ -40,7 +40,7 @@ const SheetTaskList = ({
   );
   if (list.length === 0)
     return (
-      <p className="text-sm text-gray-400 text-center py-6">
+      <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
         이 기간에 등록된 Task가 없습니다
       </p>
     );
@@ -86,26 +86,26 @@ const YearView = ({
             onClick={() => onSelectMonth(ym)}
             className={`flex flex-col items-center p-3 rounded-xl border transition-colors
               ${isCurrentMonth
-                ? 'border-indigo-400 bg-indigo-50'
-                : 'border-gray-100 bg-white hover:border-indigo-200 hover:bg-indigo-50/30'
+                ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
+                : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-200 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10'
               }`}
           >
             <span
               className={`text-sm font-semibold ${
-                isCurrentMonth ? 'text-indigo-600' : 'text-gray-700'
+                isCurrentMonth ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'
               }`}
             >
               {MONTHS[i]}
             </span>
             {count > 0 && (
               <>
-                <div className="w-full mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
+                <div className="w-full mt-2 h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-indigo-400 rounded-full"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-gray-400 mt-1">
+                <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                   {done}/{count}
                 </span>
               </>
@@ -149,7 +149,7 @@ const MonthView = ({
           <div
             key={d}
             className={`text-center text-xs font-medium py-2 ${
-              i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400'
+              i === 5 ? 'text-blue-400' : i === 6 ? 'text-red-400' : 'text-gray-400 dark:text-gray-500'
             }`}
           >
             {d}
@@ -171,7 +171,7 @@ const MonthView = ({
             <button
               key={ymd}
               onClick={() => onSelectDay(ymd)}
-              className="flex flex-col items-center py-1 rounded-lg hover:bg-indigo-50 transition-colors"
+              className="flex flex-col items-center py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
             >
               <span
                 className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium
@@ -181,7 +181,7 @@ const MonthView = ({
                     ? 'text-blue-500'
                     : col === 6
                     ? 'text-red-500'
-                    : 'text-gray-700'
+                    : 'text-gray-700 dark:text-gray-300'
                   }`}
               >
                 {day}
@@ -232,7 +232,7 @@ const WeekView = ({
             <button
               key={ymd}
               onClick={() => onSelectDay(ymd)}
-              className="flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-indigo-50 transition-colors"
+              className="flex flex-col items-center gap-1 py-2 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
             >
               <span
                 className={`text-[11px] font-medium ${
@@ -243,7 +243,7 @@ const WeekView = ({
               </span>
               <span
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold transition-colors
-                  ${isToday ? 'bg-indigo-600 text-white' : 'text-gray-700'}`}
+                  ${isToday ? 'bg-indigo-600 text-white' : 'text-gray-700 dark:text-gray-300'}`}
               >
                 {d.getDate()}
               </span>
@@ -274,7 +274,7 @@ const WeekView = ({
           if (dayTasks.length === 0) return null;
           return (
             <div key={ymd}>
-              <p className="text-xs text-gray-400 font-medium mb-1 ml-1">
+              <p className="text-xs text-gray-400 dark:text-gray-500 font-medium mb-1 ml-1">
                 {d.getMonth() + 1}/{d.getDate()} ({WEEK_DAYS[i]})
               </p>
               <div className="flex flex-col gap-1.5">
@@ -309,7 +309,7 @@ const DayView = ({
 
   if (dayTasks.length === 0)
     return (
-      <p className="text-sm text-gray-400 text-center py-10">
+      <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-10">
         이 날의 Task가 없습니다
       </p>
     );
@@ -438,15 +438,15 @@ const Calendar = () => {
     <div className="flex flex-col h-full">
       {/* ── 뷰 토글 탭 ─────────────────────────────────────── */}
       <div className="flex items-center justify-center gap-1 px-4 pt-3 pb-2">
-        <div className="flex bg-gray-100 rounded-xl p-1 gap-0.5">
+        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-0.5">
           {VIEW_LABELS.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setView(id)}
               className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors
                 ${view === id
-                  ? 'bg-white text-indigo-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                 }`}
             >
               {label}
@@ -460,20 +460,20 @@ const Calendar = () => {
         <button
           onClick={prev}
           aria-label="이전"
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400"
         >
           <ChevronLeft size={20} />
         </button>
         <button
           onClick={goToday}
-          className="text-base font-bold text-gray-800 hover:text-indigo-600 transition-colors"
+          className="text-base font-bold text-gray-800 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
         >
           {navTitle}
         </button>
         <button
           onClick={next}
           aria-label="다음"
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500 dark:text-gray-400"
         >
           <ChevronRight size={20} />
         </button>

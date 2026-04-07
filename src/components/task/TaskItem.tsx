@@ -87,13 +87,13 @@ const TaskItem = ({ task }: TaskItemProps) => {
         <div className="flex-1 min-w-0">
           <p
             className={`text-sm font-medium truncate ${
-              isDone ? 'line-through text-gray-400' : 'text-gray-800'
+              isDone ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-100'
             }`}
           >
             {task.title}
           </p>
           {task.start_time && (
-            <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+            <p className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
               <Clock size={11} />
               {task.start_time}
               {task.end_time ? ` – ${task.end_time}` : ''}
@@ -113,7 +113,7 @@ const TaskItem = ({ task }: TaskItemProps) => {
           onClick={() => openDetail(task.id)}
           aria-label="상세 보기 및 수정"
           title="상세 보기 및 수정"
-          className="shrink-0 p-1.5 rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-colors"
+          className="shrink-0 p-1.5 rounded-lg text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           <Pencil size={13} />
         </button>
@@ -127,8 +127,8 @@ const TaskItem = ({ task }: TaskItemProps) => {
             title={hasChildren ? '이미 하위 작업이 있습니다' : 'AI로 작업 쪼개기'}
             className={`shrink-0 flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg transition-colors
               ${hasChildren
-                ? 'text-gray-300 cursor-default'
-                : 'text-indigo-400 hover:bg-indigo-50 hover:text-indigo-600'
+                ? 'text-gray-300 dark:text-gray-600 cursor-default'
+                : 'text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600'
               }`}
           >
             {wbsLoading ? (

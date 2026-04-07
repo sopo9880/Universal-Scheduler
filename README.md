@@ -1,7 +1,8 @@
 # Universal Scheduler
 
 자연어 기반 AI 스케줄러 웹 앱 — Google Gemini API를 활용해 텍스트 한 줄로 할 일을 등록합니다.  
-오프라인에서도 정규표현식 파서로 동작하며, IndexedDB(RxDB)에 데이터를 영속 저장합니다.
+오프라인에서도 정규표현식 파서로 동작하며, IndexedDB(RxDB)에 데이터를 영속 저장합니다.  
+Supabase 로그인 시 여러 기기 간 양방향 동기화가 지원됩니다.
 
 ## 기술 스택
 
@@ -15,7 +16,7 @@
 | 로컬 DB | RxDB v17 + Dexie (IndexedDB 어댑터) |
 | AI | Google Gemini 2.5 Flash (REST) |
 | 라우팅 | React Router v6 |
-
+| 인증/동기화 | Supabase (Auth + PostgreSQL) |
 ## 시작하기
 
 ```bash
@@ -24,6 +25,8 @@ npm install
 
 # 2. 환경 변수 설정 (.env 파일에 API Key 입력)
 # VITE_GEMINI_API_KEY=your_key_here
+# VITE_SUPABASE_URL=https://your-project.supabase.co
+# VITE_SUPABASE_ANON_KEY=your_anon_key
 
 # 3. 개발 서버 실행
 npm run dev
@@ -102,12 +105,33 @@ npm run dev
   4. **데이터 관리** — `window.confirm` 이중 확인 후 전체 Task 논리 삭제 + 카테고리 물리 삭제
 - `TaskItem` — `category_id` → categories 색상 조회 → 카드 상단 컬러 바로 렌더
 - `TaskDetailPanel` — 카테고리 ID 텍스트 입력을 **셀렉트박스**로 교체 (카테고리 목록 연동)
-
+### ✅ Phase 8 — 다크모드 완벽 적용 및 Supabase 연동
+- **차이테마(dark mode) 전체 적용** — AppLayout, Header, Sidebar, BottomNav, BottomSheet, SmartInputBar, TaskItem, TaskDetailPanel, Home, Calendar, Timetable, Settings 모든 컴포넌트에 `dark:` 클래스 관당
+  - 배경: `dark:bg-gray-900` / `dark:bg-gray-800` / `dark:bg-gray-950`
+  - 텍스트: `dark:text-gray-100` / `dark:text-gray-300` / `dark:text-gray-500`
+  - 테두리: `dark:border-gray-700`
+  - 입력측: `dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100`
+- **Supabase 설치** — `@supabase/supabase-js` 패키지 추가
+- **`src/lib/supabase.ts`** — Supabase 클라이언트 싱글턴; URL/Key 미설정 시 플레이스홀더로 초기화(앱 크래시 방지)
+- **`src/store/supabaseSync.ts`** — RxDB ↔ Supabase 양방향 Replication
+  - **Pull** (15초 카: `updated_at` 체크포인트 기반): Supabase `tasks` 테이블 정책 후 RxDB upsert
+  - **Push** (RxDB `$` 옵저버블): 로지 변경 시 Supabase `tasks` upsert
+  - `startReplication(db, userId)` / `stopReplication()` API 제공
+- **`useAppStore`** — `user: User | null` + `setUser` 추가
+- **`initDbSync`** — `supabase.auth.getSession()` 초기 확인 + `onAuthStateChange` 구독
+  - SIGNED_IN → `startReplication`
+  - SIGNED_OUT → `stopReplication` + 로컸 Task 논리 삭제
+- **`Settings` ''계정 및 동기화'' 섹션** 추가 (카드 최상단)
+  - 로그인 시: 이메일 표시 + 로그아웃 버튼
+  - 비로그인 시: 로그인/회원가입 탭 전환 폼, 에러/성공 메시지
+- **Supabase SQL 스키마** (`supabaseSync.ts` 주석 코드 표기): tasks 테이블 DDL + RLS 정쇝 포함
 ## 환경 변수
 
 | 변수명 | 설명 |
 |---|---|
 | `VITE_GEMINI_API_KEY` | Google AI Studio에서 발급한 Gemini API Key (2순위) |
+| `VITE_SUPABASE_URL` | Supabase 프로젝트 URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon public key |
 
 > ⚠️ `.env` 파일은 `.gitignore`에 포함되어 있습니다. API Key를 소스코드에 하드코딩하지 마세요.  
 > Settings 페이지에서 입력·저장한 키(`localStorage`)가 환경변수보다 **우선 적용**됩니다.
@@ -121,11 +145,50 @@ src/
 │   ├── task/         # TaskItem, TaskDetailPanel
 │   └── shared/       # BottomSheet, SmartInputBar
 ├── db/               # database.ts (RxDB 초기화 + 스키마)
-├── lib/              # nlpToTask.ts, parser.ts
+├── lib/              # nlpToTask.ts, parser.ts, supabase.ts
 ├── pages/            # Home, Calendar, Timetable, Settings
 ├── services/         # gemini.service.ts
-├── store/            # useAppStore.ts (Zustand + RxDB 동기화)
+├── store/            # useAppStore.ts, supabaseSync.ts
 ├── types/            # index.d.ts
 ├── App.tsx
 └── main.tsx
 ```
+
+## Supabase 설정 (동기화 사용 시)
+
+Supabase Dashboard → SQL Editor에서 아래 스키마를 실행하세요.
+
+```sql
+-- tasks 테이블 생성
+create table tasks (
+  id          text        primary key,
+  user_id     uuid        not null references auth.users(id) on delete cascade,
+  title       text        not null default '',
+  date        text,
+  start_time  text,
+  end_time    text,
+  is_done     boolean     not null default false,
+  is_deleted  boolean     not null default false,
+  category_id text,
+  parent_id   text,
+  wbs_level   integer     not null default 0,
+  updated_at  timestamptz not null default now()
+);
+
+-- RLS 활성화 및 정책 설정
+alter table tasks enable row level security;
+
+create policy "users_own_tasks_select" on tasks
+  for select using (auth.uid() = user_id);
+
+create policy "users_own_tasks_insert" on tasks
+  for insert with check (auth.uid() = user_id);
+
+create policy "users_own_tasks_update" on tasks
+  for update using (auth.uid() = user_id);
+
+create policy "users_own_tasks_delete" on tasks
+  for delete using (auth.uid() = user_id);
+```
+
+`.env` 파일에 프로젝트 URL과 anon key를 입력하면 Settings 페이지에서 로그인 후 자동으로 동기화가 시작됩니다.

@@ -20,13 +20,13 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-56 bg-white border-r border-gray-100 z-40 pt-6 pb-8 px-3">
+    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-56 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-700 z-40 pt-6 pb-8 px-3">
       {/* 로고 */}
       <div className="px-3 mb-8">
         <span className="text-xl font-bold text-indigo-600 tracking-tight">
           Universal
         </span>
-        <span className="text-xl font-bold text-gray-800 tracking-tight">
+        <span className="text-xl font-bold text-gray-800 dark:text-gray-100 tracking-tight">
           Scheduler
         </span>
       </div>
@@ -41,11 +41,11 @@ const Sidebar = () => {
               onClick={() => handleNav(tab, path)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left w-full
                 ${isActive
-                  ? 'bg-indigo-50 text-indigo-600'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-gray-100'
                 }`}
             >
-              <span className={isActive ? 'text-indigo-500' : 'text-gray-400'}>
+              <span className={isActive ? 'text-indigo-500 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-500'}>
                 {icon}
               </span>
               {label}

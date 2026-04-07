@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Sun, Moon, Key, Tag, Trash2, Plus, Check, X, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Sun, Moon, Key, Tag, Trash2, Plus, Check, X, Eye, EyeOff, AlertTriangle, LogIn, LogOut, User as UserIcon, Loader2 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { getDatabase } from '../db/database';
 import { LS_GEMINI_KEY } from '../services/gemini.service';
+import { supabase } from '../lib/supabase';
 import type { Category } from '../types/index.d';
 
 // ── 카테고리 CRUD 훅 ──────────────────────────────────────────
@@ -71,7 +72,49 @@ const Section = ({
 const Settings = () => {
   const isDarkMode = useAppStore((s) => s.isDarkMode);
   const toggleDarkMode = useAppStore((s) => s.toggleDarkMode);
+  const user = useAppStore((s) => s.user);
   const { categories, addCategory, updateCategory, deleteCategory } = useCategories();
+
+  // ── 로그인 폼 상태 ───────────────────────────────────────────
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccess, setAuthSuccess] = useState<string | null>(null);
+
+  const handleAuth = async () => {
+    if (!authEmail.trim() || !authPassword.trim()) return;
+    setAuthLoading(true);
+    setAuthError(null);
+    setAuthSuccess(null);
+    try {
+      if (authMode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+        setAuthSuccess('가입 확인 이메일을 발송했습니다. 메일함을 확인해 주세요.');
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+      }
+      setAuthEmail('');
+      setAuthPassword('');
+    } catch (e: unknown) {
+      setAuthError(e instanceof Error ? e.message : '인증 오류가 발생했습니다.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   // ── AI API Key ───────────────────────────────────────────────
   const [apiKey, setApiKey] = useState(() => localStorage.getItem(LS_GEMINI_KEY) ?? '');
@@ -139,7 +182,92 @@ const Settings = () => {
 
   return (
     <div className="p-4 space-y-4 max-w-xl mx-auto">
-      {/* ── 1. 테마 설정 ──────────────────────────────────────── */}
+      {/* ── 0. 계정 및 동기화 ──────────────────────────────────── */}
+      <Section icon={<UserIcon size={16} />} title="계정 및 동기화">
+        {user ? (
+          // 로그인 상태
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3 px-3 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {user.email?.[0]?.toUpperCase() ?? 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{user.email}</p>
+                <p className="text-xs text-indigo-500 dark:text-indigo-400 mt-0.5">Supabase 동기화 활성화됨</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600
+                         text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium transition-colors"
+            >
+              <LogOut size={14} />
+              로그아웃
+            </button>
+          </div>
+        ) : (
+          // 비로그인 상태
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              로그인하면 여러 기기 간 데이터가 Supabase를 통해 자동 동기화됩니다.
+            </p>
+            {/* 탭: 로그인 / 회원가입 */}
+            <div className="flex gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-xl">
+              {(['login', 'signup'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => { setAuthMode(m); setAuthError(null); setAuthSuccess(null); }}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors
+                    ${authMode === m
+                      ? 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                >
+                  {m === 'login' ? '로그인' : '회원가입'}
+                </button>
+              ))}
+            </div>
+            <input
+              type="email"
+              value={authEmail}
+              onChange={(e) => setAuthEmail(e.target.value)}
+              placeholder="이메일"
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm
+                         bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+            <input
+              type="password"
+              value={authPassword}
+              onChange={(e) => setAuthPassword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
+              placeholder="비밀번호 (최소 6자)"
+              className="w-full px-3 py-2.5 border border-gray-200 dark:border-gray-600 rounded-lg text-sm
+                         bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+            />
+            {authError && (
+              <p className="text-xs text-red-400 dark:text-red-400">{authError}</p>
+            )}
+            {authSuccess && (
+              <p className="text-xs text-green-500 dark:text-green-400">{authSuccess}</p>
+            )}
+            <button
+              onClick={handleAuth}
+              disabled={authLoading || !authEmail.trim() || !authPassword.trim()}
+              className="flex items-center justify-center gap-2 py-2.5 bg-indigo-500 hover:bg-indigo-600
+                         disabled:opacity-40 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              {authLoading ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : (
+                <LogIn size={15} />
+              )}
+              {authMode === 'login' ? '로그인' : '회원가입'}
+            </button>
+          </div>
+        )}
+      </Section>
       <Section icon={isDarkMode ? <Moon size={16} /> : <Sun size={16} />} title="테마 설정">
         <div className="flex items-center justify-between">
           <div>

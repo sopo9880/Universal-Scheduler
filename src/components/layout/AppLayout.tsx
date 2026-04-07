@@ -7,7 +7,7 @@ import TaskDetailPanel from '../task/TaskDetailPanel';
 
 const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex">
       {/* 데스크톱: 좌측 Sidebar (md 이상에서만 표시) */}
       <Sidebar />
 

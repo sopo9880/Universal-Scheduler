@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import type { User } from '@supabase/supabase-js';
 import type { Task, Category } from '../types/index.d';
 import { getDatabase } from '../db/database';
+import { supabase } from '../lib/supabase';
+import { startReplication, stopReplication } from './supabaseSync';
 
 export type TabName = 'home' | 'calendar' | 'timetable' | 'settings';
 
@@ -34,6 +37,10 @@ interface AppState {
   // 다크모드
   isDarkMode: boolean;
   toggleDarkMode: () => void;
+
+  // Supabase 로그인 사용자
+  user: User | null;
+  setUser: (user: User | null) => void;
 }
 
 const today = (): string => new Date().toISOString().slice(0, 10);
@@ -82,6 +89,9 @@ export const useAppStore = create<AppState>((set) => ({
       document.documentElement.classList.toggle('dark', next);
       return { isDarkMode: next };
     }),
+
+  user: null,
+  setUser: (user) => set({ user }),
 }));
 
 // ── 앱 시작 시 저장된 다크모드 복원 ──────────────────────────
@@ -117,4 +127,31 @@ export const initDbSync = async (): Promise<void> => {
       const categories: Category[] = docs.map((d) => d.toJSON() as Category);
       useAppStore.getState()._setCategories(categories);
     });
+
+  // ── Supabase 세션 감지 + Replication ────────────────────────
+  // 초기 세션 확인
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+    useAppStore.getState().setUser(session.user);
+    startReplication(db, session.user.id);
+  }
+
+  // 세션 변경 구독 (로그인/로그아웃 시 자동 처리)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    const user = session?.user ?? null;
+    useAppStore.getState().setUser(user);
+
+    if (event === 'SIGNED_IN' && user) {
+      startReplication(db, user.id);
+    } else if (event === 'SIGNED_OUT') {
+      stopReplication();
+      // 로컬 DB 사용자 데이터 초기화 (논리 삭제)
+      const taskDocs = await db.tasks.find().exec();
+      await Promise.all(
+        taskDocs.map((doc) =>
+          doc.patch({ is_deleted: true, updated_at: Date.now() }),
+        ),
+      );
+    }
+  });
 };

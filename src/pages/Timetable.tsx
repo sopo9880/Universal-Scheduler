@@ -61,8 +61,8 @@ const Timetable = () => {
   return (
     <div className="flex flex-col h-full">
       {/* ── 날짜 헤더 ────────────────────────────────────────── */}
-      <div className="shrink-0 px-4 py-3 bg-white border-b border-gray-100">
-        <p className="text-sm font-semibold text-gray-800">
+      <div className="shrink-0 px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-700">
+        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
           {new Date().toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: 'long',
@@ -70,7 +70,7 @@ const Timetable = () => {
             weekday: 'short',
           })}
         </p>
-        <p className="flex items-center gap-1 text-xs text-gray-400 mt-0.5">
+        <p className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 mt-0.5">
           <Clock size={11} />
           {timedTasks.length > 0
             ? `${timedTasks.length}개의 시간 블록`
@@ -81,7 +81,7 @@ const Timetable = () => {
       {/* ── 타임라인 스크롤 영역 ─────────────────────────────── */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto bg-gray-50"
+        className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950"
       >
         {/* 상하 여백 포함 래퍼 */}
         <div className="relative mx-4 my-4" style={{ height: TOTAL_HEIGHT }}>
@@ -95,7 +95,7 @@ const Timetable = () => {
             >
               {/* 레이블 */}
               <span
-                className="text-[10px] text-gray-400 select-none shrink-0 text-right pr-2"
+                className="text-[10px] text-gray-400 dark:text-gray-600 select-none shrink-0 text-right pr-2"
                 style={{ width: LEFT_GUTTER }}
               >
                 {h < 24 ? `${String(h).padStart(2, '0')}:00` : ''}
@@ -168,8 +168,8 @@ const Timetable = () => {
       {/* ── 빈 상태 안내 (타임라인 위에 오버레이) ───────────── */}
       {timedTasks.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <p className="text-sm text-gray-400">오늘 등록된 시간 블록이 없어요.</p>
-          <p className="text-xs text-gray-300 mt-1">
+          <p className="text-sm text-gray-400 dark:text-gray-500">오늘 등록된 시간 블록이 없어요.</p>
+          <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">
             Smart Input Bar에서 시간과 함께 할 일을 추가해 보세요.
           </p>
         </div>
