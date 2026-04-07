@@ -3,6 +3,7 @@ import { Plus, X, Send, Sparkles, Loader2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAppStore } from '../../store/useAppStore';
 import { parseNaturalLanguage } from '../../services/gemini.service';
+import { parseWithRules } from '../../lib/parser';
 import { nlpToTask } from '../../lib/nlpToTask';
 
 const SmartInputBar = () => {
@@ -40,17 +41,18 @@ const SmartInputBar = () => {
       setFeedback(`✅ "${task.title}" 추가됨 (${task.target_period})`);
       setText('');
       setTimeout(close, 1500);
-    } catch (err) {
-      // API 실패 시 제목을 그대로 오늘 할 일로 저장 (간이 폴백)
-      const fallbackTask = nlpToTask({
-        title: trimmed,
-        targetDate: '오늘',
-        timeStr: '시간 미정',
-      });
-      addTask(fallbackTask);
-      setFeedback(`⚠️ AI 파싱 실패 — 오늘 할 일로 저장됨`);
-      setText('');
-      setTimeout(close, 1800);
+    } catch {
+      // API 실패 → Rule-based 파서로 폴백
+      try {
+        const nlpResult = parseWithRules(trimmed);
+        const task = nlpToTask(nlpResult);
+        addTask(task);
+        setFeedback(`📋 오프라인 파싱: "${task.title}" (${task.target_period})`);
+        setText('');
+        setTimeout(close, 1800);
+      } catch {
+        setFeedback('❌ 파싱 실패 — 다시 시도해주세요');
+      }
     } finally {
       setLoading(false);
     }

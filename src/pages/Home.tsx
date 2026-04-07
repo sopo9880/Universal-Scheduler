@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import TaskItem from '../components/task/TaskItem';
 import type { Task } from '../types/index.d';
@@ -175,92 +174,6 @@ const TodaySection = ({ tasks }: { tasks: Task[] }) => {
 // ── Home 페이지 ───────────────────────────────────────────────
 const Home = () => {
   const tasks = useAppStore((s) => s.tasks);
-
-  // 목업 데이터 — DB 연동 전 UI 확인용 (빈 상태일 때만 삽입)
-  const addTask = useAppStore((s) => s.addTask);
-  useMemo(() => {
-    if (tasks.length > 0) return;
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const thisWeek = getISOWeek(new Date());
-    const year = String(new Date().getFullYear());
-    const seed: Task[] = [
-      {
-        id: crypto.randomUUID(),
-        title: '포트폴리오 완성하기',
-        scope: 'YEAR',
-        target_period: year,
-        status: 'IN_PROGRESS',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '운동 루틴 만들기',
-        scope: 'YEAR',
-        target_period: year,
-        status: 'DONE',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '주간 계획 세우기',
-        scope: 'WEEK',
-        target_period: thisWeek,
-        status: 'TODO',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '스케줄러 UI 완성',
-        scope: 'WEEK',
-        target_period: thisWeek,
-        status: 'IN_PROGRESS',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '아침 운동',
-        scope: 'DAY',
-        target_period: todayStr,
-        status: 'DONE',
-        start_time: '07:00',
-        end_time: '08:00',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '프로젝트 PR 리뷰',
-        scope: 'DAY',
-        target_period: todayStr,
-        status: 'TODO',
-        start_time: '14:00',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        title: '저녁 독서 30분',
-        scope: 'DAY',
-        target_period: todayStr,
-        status: 'TODO',
-        created_at: Date.now(),
-        updated_at: Date.now(),
-        is_deleted: false,
-      },
-    ];
-    seed.forEach(addTask);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="pb-4">

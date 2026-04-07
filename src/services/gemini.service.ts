@@ -1,6 +1,6 @@
 import type { NLPResult } from '../types/index.d';
 
-const GEMINI_MODEL = 'gemini-2.5-flash-preview-09-2025';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 const getApiKey = (): string => {
@@ -19,7 +19,7 @@ async function callGemini<T>(
   const url = `${BASE_URL}/${GEMINI_MODEL}:generateContent?key=${key}`;
 
   const body = {
-    system_instruction: {
+    systemInstruction: {
       parts: [{ text: systemInstruction }],
     },
     contents: [
