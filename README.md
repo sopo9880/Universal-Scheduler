@@ -77,13 +77,40 @@ npm run dev
   - 제목: 날짜·시간 표현을 제거한 핵심 텍스트 추출
 - `SmartInputBar` 폴백 체계: **Gemini API → Rule-based Parser** 순서로 시도
 
+### ✅ Phase 6 — Timetable (Time Blocking) 구현
+- `pages/Timetable.tsx` — 0~24시 세로 스크롤 타임라인 그리드
+  - **현재 시각 표시선** — 빨간 점·가로선, 1분마다 갱신, 페이지 열릴 때 현재 시각으로 자동 스크롤
+  - **시간 블록** — 오늘 날짜 & `start_time` 있는 Task를 시간 비례 `top`/`height`로 렌더링
+  - `end_time` 없으면 45분 기본 블록 높이 적용
+  - 블록 클릭 → `TaskDetailPanel` 즉시 오픈
+- `components/task/TaskDetailPanel.tsx` — BottomSheet 재활용 상세/수정 패널
+  - 제목, 시작/종료 시간(`<input type="time">`), 카테고리 셀렉트박스 편집
+  - **저장** — `updateTask` → RxDB 패치 → Zustand 즉시 반영
+  - **삭제** — `deleteTask` (논리 삭제 `is_deleted: true`)
+- `useAppStore` — `detailTaskId` / `openDetail` / `closeDetail` 전역 상태 추가
+- `TaskItem` — 연필(Pencil) 버튼 → `openDetail()` 호출 (Home·Calendar 어디서나 동작)
+
+### ✅ Phase 7 — Settings 페이지 구현
+- `tailwind.config.js` — `darkMode: 'class'` 추가
+- `useAppStore` — `isDarkMode` / `toggleDarkMode`: `localStorage` 영속 저장, `html.dark` 클래스 즉시 토글, 앱 시작 시 자동 복원
+- `useAppStore` — `categories[]` RxDB 실시간 미러 추가 (`initDbSync` 구독)
+- `gemini.service.ts` — API Key 우선순위: **localStorage (`gemini_api_key`) → `.env`** 순
+- `pages/Settings.tsx` — 4개 섹션
+  1. **테마 설정** — 라이트/다크 모드 토글 스위치
+  2. **AI 설정** — API Key 마스킹 입력(눈 아이콘 토글) + 저장/초기화, Google AI Studio 링크
+  3. **카테고리 관리** — RxDB `categories` 컬렉션 실시간 CRUD (컬러 피커 + 이름, 인라인 수정, 삭제)
+  4. **데이터 관리** — `window.confirm` 이중 확인 후 전체 Task 논리 삭제 + 카테고리 물리 삭제
+- `TaskItem` — `category_id` → categories 색상 조회 → 카드 상단 컬러 바로 렌더
+- `TaskDetailPanel` — 카테고리 ID 텍스트 입력을 **셀렉트박스**로 교체 (카테고리 목록 연동)
+
 ## 환경 변수
 
 | 변수명 | 설명 |
 |---|---|
-| `VITE_GEMINI_API_KEY` | Google AI Studio에서 발급한 Gemini API Key |
+| `VITE_GEMINI_API_KEY` | Google AI Studio에서 발급한 Gemini API Key (2순위) |
 
-> ⚠️ `.env` 파일은 `.gitignore`에 포함되어 있습니다. API Key를 소스코드에 하드코딩하지 마세요.
+> ⚠️ `.env` 파일은 `.gitignore`에 포함되어 있습니다. API Key를 소스코드에 하드코딩하지 마세요.  
+> Settings 페이지에서 입력·저장한 키(`localStorage`)가 환경변수보다 **우선 적용**됩니다.
 
 ## 디렉토리 구조
 
@@ -91,7 +118,7 @@ npm run dev
 src/
 ├── components/
 │   ├── layout/       # AppLayout, Header, BottomNav, Sidebar
-│   ├── task/         # TaskItem
+│   ├── task/         # TaskItem, TaskDetailPanel
 │   └── shared/       # BottomSheet, SmartInputBar
 ├── db/               # database.ts (RxDB 초기화 + 스키마)
 ├── lib/              # nlpToTask.ts, parser.ts
@@ -102,10 +129,3 @@ src/
 ├── App.tsx
 └── main.tsx
 ```
-
-## 다음 단계 (예정)
-
-| Phase | 내용 |
-|---|---|
-| Phase 6 | Timetable — `start_time`/`end_time` Task 세로 타임라인 렌더링 |
-| Phase 7 | Settings — API Key 관리, 다크모드 토글, 카테고리 CRUD, 데이터 초기화 |
