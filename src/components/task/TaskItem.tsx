@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Circle, CheckCircle2, Clock, Sparkles, Loader2, ChevronDown } from 'lucide-react';
+import { Circle, CheckCircle2, Clock, Sparkles, Loader2, ChevronDown, Pencil } from 'lucide-react';
 import type { Task } from '../../types/index.d';
 import { useAppStore } from '../../store/useAppStore';
 import { generateSubtasks } from '../../services/gemini.service';
@@ -12,6 +12,7 @@ const TaskItem = ({ task }: TaskItemProps) => {
   const updateTask = useAppStore((s) => s.updateTask);
   const addTask = useAppStore((s) => s.addTask);
   const tasks = useAppStore((s) => s.tasks);
+  const openDetail = useAppStore((s) => s.openDetail);
 
   const [wbsLoading, setWbsLoading] = useState(false);
   const [wbsError, setWbsError] = useState<string | null>(null);
@@ -96,6 +97,16 @@ const TaskItem = ({ task }: TaskItemProps) => {
             진행중
           </span>
         )}
+
+        {/* 상세/수정 버튼 */}
+        <button
+          onClick={() => openDetail(task.id)}
+          aria-label="상세 보기 및 수정"
+          title="상세 보기 및 수정"
+          className="shrink-0 p-1.5 rounded-lg text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-colors"
+        >
+          <Pencil size={13} />
+        </button>
 
         {/* AI 작업 쪼개기 버튼 — 최상위 Task에만 표시 */}
         {!isSubTask && (

@@ -21,6 +21,11 @@ interface AppState {
   addTask: (task: Task) => Promise<void>;
   updateTask: (id: string, patch: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+
+  // Task 상세/수정 패널 (전역 — TaskItem 및 Timetable 블록에서 공유)
+  detailTaskId: string | null;
+  openDetail: (id: string) => void;
+  closeDetail: () => void;
 }
 
 const today = (): string => new Date().toISOString().slice(0, 10);
@@ -53,6 +58,10 @@ export const useAppStore = create<AppState>((set) => ({
     if (!doc) return;
     await doc.patch({ is_deleted: true, updated_at: Date.now() });
   },
+
+  detailTaskId: null,
+  openDetail: (id) => set({ detailTaskId: id }),
+  closeDetail: () => set({ detailTaskId: null }),
 }));
 
 // ── RxDB → Zustand 실시간 동기화 (앱 시작 시 1회 호출) ────────

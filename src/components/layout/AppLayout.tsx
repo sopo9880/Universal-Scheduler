@@ -3,6 +3,7 @@ import Header from './Header';
 import BottomNav from './BottomNav';
 import Sidebar from './Sidebar';
 import SmartInputBar from '../shared/SmartInputBar';
+import TaskDetailPanel from '../task/TaskDetailPanel';
 
 const AppLayout = () => {
   return (
@@ -25,6 +26,9 @@ const AppLayout = () => {
       </div>
 
       <SmartInputBar />
+
+      {/* Task 상세/수정 패널 (전역 — 어느 페이지에서나 openDetail로 열 수 있음) */}
+      <TaskDetailPanel />
     </div>
   );
 };
